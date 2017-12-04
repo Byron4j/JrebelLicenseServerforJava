@@ -7,6 +7,11 @@
     <groupId>com.vvvtimes.com</groupId>
     <artifactId>JrebelBrainsLicenseServerforJava</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <properties>  
+         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -15,6 +20,7 @@
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
+                    <encoding>utf8</encoding>
                 </configuration>
             </plugin>
         </plugins>
