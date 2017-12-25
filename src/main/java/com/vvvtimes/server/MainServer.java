@@ -4,6 +4,7 @@ import com.vvvtimes.JrebelUtil.JrebelSign;
 import net.sf.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 public class MainServer extends AbstractHandler {
 
     public static void main(String[] args) throws Exception {
-        Server server = new Server(8081);
+        Server server = new Server(8083);
         server.setHandler(new MainServer());
         server.start();
         server.join();
@@ -27,13 +28,34 @@ public class MainServer extends AbstractHandler {
         System.out.println(target);
         if (target.equals("/")) {
             indexHandler(target, baseRequest, request, response);
-        }  else if (target.equals("/jrebel/leases")) {
+        } else if (target.equals("/jrebel/leases")) {
             jrebelLeasesHandler(target, baseRequest, request, response);
-        }  else if (target.equals("/agent/leases")) {
+        } else if (target.equals("/jrebel/leases/1")) {
+            jrebelLeases1Handler(target, baseRequest, request, response);
+        } else if (target.equals("/agent/leases")) {
             jrebelLeasesHandler(target, baseRequest, request, response);
         } else {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
+
+    }
+
+    private void jrebelLeases1Handler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json; charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        baseRequest.setHandled(true);
+        String jsonStr = "{\n" +
+                "    \"serverVersion\": \"3.2.4\",\n" +
+                "    \"serverProtocolVersion\": \"1.1\",\n" +
+                "    \"serverGuid\": \"a1b4aea8-b031-4302-b602-670a990272cb\",\n" +
+                "    \"groupType\": \"managed\",\n" +
+                "    \"statusCode\": \"SUCCESS\",\n" +
+                "    \"msg\": null,\n" +
+                "    \"statusMessage\": null\n" +
+                "}\n";
+        JSONObject jsonObject = JSONObject.fromObject(jsonStr);
+        String body = jsonObject.toString();
+        response.getWriter().print(body);
 
     }
 
@@ -43,6 +65,17 @@ public class MainServer extends AbstractHandler {
         String clientRandomness = request.getParameter("randomness");
         String username = request.getParameter("username");
         String guid = request.getParameter("guid");
+        System.out.println(((Request) request).getParameters());
+        boolean offline = Boolean.parseBoolean(request.getParameter("offline"));
+        String validFrom = "null";
+        String validUntil = "null";
+        if (offline) {
+            String clientTime = request.getParameter("clientTime");
+            String offlineDays = request.getParameter("offlineDays");
+            long clinetTimeUntil = Long.parseLong(clientTime) + Integer.parseInt(offlineDays) * 3 * 24 * 60 * 60 * 1000;
+            validFrom = clientTime;
+            validUntil = String.valueOf(clinetTimeUntil);
+        }
         baseRequest.setHandled(true);
         String jsonStr = "{\n" +
                 "    \"serverVersion\": \"3.2.4\",\n" +
@@ -56,9 +89,9 @@ public class MainServer extends AbstractHandler {
                 "    \"serverRandomness\": \"H2ulzLlh7E0=\",\n" +
                 "    \"seatPoolType\": \"standalone\",\n" +
                 "    \"statusCode\": \"SUCCESS\",\n" +
-                "    \"offline\": false,\n" +
-                "    \"validFrom\": null,\n" +
-                "    \"validUntil\": null,\n" +
+                "    \"offline\": " + String.valueOf(offline) + ",\n" +
+                "    \"validFrom\": " + validFrom + ",\n" +
+                "    \"validUntil\": " + validUntil + ",\n" +
                 "    \"company\": \"Administrator\",\n" +
                 "    \"orderId\": \"\",\n" +
                 "    \"zeroIds\": [\n" +
@@ -72,11 +105,11 @@ public class MainServer extends AbstractHandler {
         if (clientRandomness == null || username == null || guid == null) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         } else {
-            JrebelSign jrebelSign =new JrebelSign();
-            jrebelSign.toLeaseCreateJson(clientRandomness,guid);
+            JrebelSign jrebelSign = new JrebelSign();
+            jrebelSign.toLeaseCreateJson(clientRandomness, guid, offline, validFrom, validUntil);
             String signature = jrebelSign.getSignature();
-            jsonObject.put("signature",signature);
-            jsonObject.put("company",username);
+            jsonObject.put("signature", signature);
+            jsonObject.put("company", username);
             String body = jsonObject.toString();
             response.getWriter().print(body);
         }
