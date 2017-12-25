@@ -17,7 +17,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 public class MainServer extends AbstractHandler {
 
     public static void main(String[] args) throws Exception {
-        Server server = new Server(8083);
+        Server server = new Server(8081);
         server.setHandler(new MainServer());
         server.start();
         server.join();
