@@ -34,6 +34,8 @@ public class MainServer extends AbstractHandler {
             jrebelLeases1Handler(target, baseRequest, request, response);
         } else if (target.equals("/agent/leases")) {
             jrebelLeasesHandler(target, baseRequest, request, response);
+        } else if (target.equals("/agent/leases/1")) {
+            jrebelLeases1Handler(target, baseRequest, request, response);
         } else {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
