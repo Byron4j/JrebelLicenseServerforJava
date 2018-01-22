@@ -74,7 +74,8 @@ public class MainServer extends AbstractHandler {
         if (offline) {
             String clientTime = request.getParameter("clientTime");
             String offlineDays = request.getParameter("offlineDays");
-            long clinetTimeUntil = Long.parseLong(clientTime) + Integer.parseInt(offlineDays)  * 24 * 60 * 60 * 1000;
+            //long clinetTimeUntil = Long.parseLong(clientTime) + Long.parseLong(offlineDays)  * 24 * 60 * 60 * 1000;
+            long clinetTimeUntil = Long.parseLong(clientTime) + 180L  * 24 * 60 * 60 * 1000;
             validFrom = clientTime;
             validUntil = String.valueOf(clinetTimeUntil);
         }
