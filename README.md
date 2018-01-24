@@ -23,3 +23,8 @@ Jrebel
 JRebel for Android
 
 XRebel
+
+## Feedback
+
++ issue: https://gitee.com/gsls200808/JrebelLicenseServerforJava/issues
++ QQ Group: 527290836
