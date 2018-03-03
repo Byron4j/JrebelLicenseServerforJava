@@ -5,6 +5,7 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,10 +17,39 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 
 public class MainServer extends AbstractHandler {
 
+
+    public static Map<String, String> parseArguments(String[] args) {
+        Map<String, String> params = new HashMap<>();
+
+        String option = null;
+        for (final String arg : args) {
+            if (arg.charAt(0) == '-') {
+                if (arg.length() < 2) {
+                    throw new IllegalArgumentException("Error at argument " + arg);
+                }
+                option = arg.substring(1);
+            } else {
+                params.put(option, arg);
+            }
+        }
+        return params;
+    }
+
     public static void main(String[] args) throws Exception {
-        Server server = new Server(8081);
+        Map<String, String> arguments = parseArguments(args);
+        String port = arguments.get("p");
+
+        if (port == null || !port.matches("\\d+")) {
+            port = "8081";
+        }
+
+        Server server = new Server(Integer.parseInt(port));
         server.setHandler(new MainServer());
         server.start();
+
+        System.out.println("License Server started at http://localhost:" + port);
+        System.out.println("Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
+
         server.join();
     }
 
@@ -75,7 +105,7 @@ public class MainServer extends AbstractHandler {
             String clientTime = request.getParameter("clientTime");
             String offlineDays = request.getParameter("offlineDays");
             //long clinetTimeUntil = Long.parseLong(clientTime) + Long.parseLong(offlineDays)  * 24 * 60 * 60 * 1000;
-            long clinetTimeUntil = Long.parseLong(clientTime) + 180L  * 24 * 60 * 60 * 1000;
+            long clinetTimeUntil = Long.parseLong(clientTime) + 180L * 24 * 60 * 60 * 1000;
             validFrom = clientTime;
             validUntil = String.valueOf(clinetTimeUntil);
         }

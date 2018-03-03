@@ -12,7 +12,15 @@ Run:
 ```
 cd /path/to/project
 mvn compile 
-mvn exec:java -Dexec.mainClass="com.vvvtimes.server.MainServer" 
+mvn exec:java -Dexec.mainClass="com.vvvtimes.server.MainServer" -Dexec.args="-p 8081"
+```
+Packing a runnable jar:
+```
+mvn package
+```
+then
+```
+java -jar JrebelLicenseServerforJava-1.0-SNAPSHOT-jar-with-dependencies.jar -p 8081
 ```
 default port is 8081.
 
