@@ -20,6 +20,10 @@ public class MainServer extends AbstractHandler {
         Server server = new Server(8081);
         server.setHandler(new MainServer());
         server.start();
+
+        System.out.println("License Server started at http://localhost:8081");
+        System.out.println("Activation address was: http://localhost:8081/{tokenname}, with any email.");
+
         server.join();
     }
 
