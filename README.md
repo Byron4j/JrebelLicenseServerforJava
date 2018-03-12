@@ -1,6 +1,6 @@
-# Jrebel License Server for Java
+# Jrebel & Jet Brains License Server for Java
 
-A license server for Jrebel products, it also support JRebel for Android and XRebel.
+A license server for Jrebel & JetBrains products, it also support JRebel for Android and XRebel.
 
 ***
 Thank ilanyu
@@ -20,7 +20,7 @@ mvn package
 ```
 then
 ```
-java -jar JrebelLicenseServerforJava-1.0-SNAPSHOT-jar-with-dependencies.jar -p 8081
+java -jar JrebelBrainsLicenseServerforJava-1.0-SNAPSHOT-jar-with-dependencies.jar -p 8081
 ```
 default port is 8081.
 
@@ -31,6 +31,8 @@ Jrebel
 JRebel for Android
 
 XRebel
+
+JetBrains Products
 
 ## Feedback
 
