@@ -1,11 +1,15 @@
 package com.vvvtimes.server;
 
 import com.vvvtimes.JrebelUtil.JrebelSign;
+import com.vvvtimes.util.rsasign;
 import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,9 +21,8 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 
 public class MainServer extends AbstractHandler {
 
-
     public static Map<String, String> parseArguments(String[] args) {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
 
         String option = null;
         for (final String arg : args) {
@@ -48,10 +51,12 @@ public class MainServer extends AbstractHandler {
         server.start();
 
         System.out.println("License Server started at http://localhost:" + port);
-        System.out.println("Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
+        System.out.println("JetBrains Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
+        System.out.println("JRebel Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
 
         server.join();
     }
+
 
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
@@ -66,10 +71,15 @@ public class MainServer extends AbstractHandler {
             jrebelLeasesHandler(target, baseRequest, request, response);
         } else if (target.equals("/agent/leases/1")) {
             jrebelLeases1Handler(target, baseRequest, request, response);
+        } else if (target.equals("/rpc/ping.action")) {
+            pingHandler(target, baseRequest, request, response);
+        } else if (target.equals("/rpc/obtainTicket.action")) {
+            obtainTicketHandler(target, baseRequest, request, response);
+        } else if (target.equals("/rpc/releaseTicket.action")) {
+            releaseTicketHandler(target, baseRequest, request, response);
         } else {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
-
     }
 
     private void jrebelLeases1Handler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -148,11 +158,66 @@ public class MainServer extends AbstractHandler {
         }
     }
 
+    private void releaseTicketHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException{
+        response.setContentType("text/html; charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        String salt = request.getParameter("salt");
+        baseRequest.setHandled(true);
+        if(salt==null){
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        }else{
+            String xmlContent = "<ReleaseTicketResponse><message></message><responseCode>OK</responseCode><salt>" + salt + "</salt></ReleaseTicketResponse>";
+            String xmlSignature = rsasign.Sign(xmlContent);
+            String body = "<!-- " + xmlSignature + " -->\n" + xmlContent;
+            response.getWriter().print(body);
+        }
+    }
+
+    private void obtainTicketHandler ( String target , Request baseRequest , HttpServletRequest request ,
+                                       HttpServletResponse response ) throws IOException
+    {
+        response.setContentType("text/html; charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        SimpleDateFormat fm=new SimpleDateFormat("EEE,d MMM yyyy hh:mm:ss Z", Locale.ENGLISH);
+        String date =fm.format(new Date())+" GMT";
+        //response.setHeader("Date", date);
+        //response.setHeader("Server", "fasthttp");
+        String salt = request.getParameter("salt");
+        String username = request.getParameter("userName");
+        String prolongationPeriod = "607875500";
+        baseRequest.setHandled(true);
+        if(salt==null||username==null){
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        }else{
+            String xmlContent = "<ObtainTicketResponse><message></message><prolongationPeriod>" + prolongationPeriod + "</prolongationPeriod><responseCode>OK</responseCode><salt>" + salt + "</salt><ticketId>1</ticketId><ticketProperties>licensee=" + username + "\tlicenseType=0\t</ticketProperties></ObtainTicketResponse>";
+            String xmlSignature = rsasign.Sign(xmlContent);
+            String body = "<!-- " + xmlSignature + " -->\n" + xmlContent;
+            response.getWriter().print(body);
+        }
+    }
+
+    private void pingHandler ( String target , Request baseRequest , HttpServletRequest request , HttpServletResponse response ) throws IOException
+    {
+        response.setContentType("text/html; charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        String salt = request.getParameter("salt");
+        baseRequest.setHandled(true);
+        if(salt==null){
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        }else{
+            String xmlContent = "<PingResponse><message></message><responseCode>OK</responseCode><salt>" + salt + "</salt></PingResponse>";
+            String xmlSignature = rsasign.Sign(xmlContent);
+            String body = "<!-- " + xmlSignature + " -->\n" + xmlContent;
+            response.getWriter().print(body);
+        }
+
+    }
+
     private void indexHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);
-        response.getWriter().println("<h1>Hello,This is a Jrebel License Server!</h1>");
+        response.getWriter().println("<h1>Hello,This is a Jrebel & JetBrains License Server!</h1>");
 
     }
 }
