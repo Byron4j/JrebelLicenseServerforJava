@@ -51,7 +51,7 @@ public class MainServer extends AbstractHandler {
         server.start();
 
         System.out.println("License Server started at http://localhost:" + port);
-        System.out.println("JetBrains Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
+        System.out.println("JetBrains Activation address was: http://localhost:" + port + "/");
         System.out.println("JRebel Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
 
         server.join();
@@ -71,6 +71,8 @@ public class MainServer extends AbstractHandler {
             jrebelLeasesHandler(target, baseRequest, request, response);
         } else if (target.equals("/agent/leases/1")) {
             jrebelLeases1Handler(target, baseRequest, request, response);
+        } else if (target.equals("/jrebel/validate-connection")) {
+            jrebelValidateHandler(target, baseRequest, request, response);
         } else if (target.equals("/rpc/ping.action")) {
             pingHandler(target, baseRequest, request, response);
         } else if (target.equals("/rpc/obtainTicket.action")) {
@@ -82,9 +84,31 @@ public class MainServer extends AbstractHandler {
         }
     }
 
+    private void jrebelValidateHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException  {
+        response.setContentType("application/json; charset=utf-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+        baseRequest.setHandled(true);
+        String jsonStr = "{\n" +
+                "    \"serverVersion\": \"3.2.4\",\n" +
+                "    \"serverProtocolVersion\": \"1.1\",\n" +
+                "    \"serverGuid\": \"a1b4aea8-b031-4302-b602-670a990272cb\",\n" +
+                "    \"groupType\": \"managed\",\n" +
+                "    \"statusCode\": \"SUCCESS\",\n" +
+                "    \"company\": \"Administrator\",\n" +
+                "    \"canGetLease\": true,\n" +
+                "    \"licenseType\": 1,\n" +
+                "    \"evaluationLicense\": false,\n" +
+                "    \"seatPoolType\": \"standalone\"\n" +
+                "}\n";
+        JSONObject jsonObject = JSONObject.fromObject(jsonStr);
+        String body = jsonObject.toString();
+        response.getWriter().print(body);
+    }
+
     private void jrebelLeases1Handler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
+        String username = request.getParameter("username");
         baseRequest.setHandled(true);
         String jsonStr = "{\n" +
                 "    \"serverVersion\": \"3.2.4\",\n" +
@@ -96,6 +120,9 @@ public class MainServer extends AbstractHandler {
                 "    \"statusMessage\": null\n" +
                 "}\n";
         JSONObject jsonObject = JSONObject.fromObject(jsonStr);
+        if (username != null ) {
+            jsonObject.put("company", username);
+        }
         String body = jsonObject.toString();
         response.getWriter().print(body);
 
