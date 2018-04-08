@@ -6,10 +6,7 @@ import net.sf.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +49,8 @@ public class MainServer extends AbstractHandler {
 
         System.out.println("License Server started at http://localhost:" + port);
         System.out.println("JetBrains Activation address was: http://localhost:" + port + "/");
-        System.out.println("JRebel Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
+        System.out.println("JRebel 7.1 and earlier version Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
+        System.out.println("JRebel 2018.1 and later version Activation address was: http://localhost:" + port + "/{guid}(eg:http://localhost:" + port + "/"+ UUID.randomUUID().toString()+"), with any email.");
 
         server.join();
     }
