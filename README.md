@@ -23,6 +23,13 @@ then
 java -jar JrebelBrainsLicenseServerforJava-1.0-SNAPSHOT-jar-with-dependencies.jar -p 8081
 ```
 default port is 8081.
+
+Or use gradle
+```
+gradle shadowJar
+
+java -jar JrebelBrainsLicenseServerforJava-1.0-SNAPSHOT-all.jar -p 8081
+```
 ## Docker
 Build image
 ```
