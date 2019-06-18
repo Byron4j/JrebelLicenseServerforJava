@@ -18,20 +18,32 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 
 public class MainServer extends AbstractHandler {
 
-    public static Map<String, String> parseArguments(String[] args) {
-        Map<String, String> params = new HashMap<String, String>();
-
-        String option = null;
-        for (final String arg : args) {
-            if (arg.charAt(0) == '-') {
-                if (arg.length() < 2) {
-                    throw new IllegalArgumentException("Error at argument " + arg);
-                }
-                option = arg.substring(1);
-            } else {
-                params.put(option, arg);
-            }
+    private static Map<String, String> parseArguments(String[] args)
+    {
+        if (args.length % 2 != 0)
+        {
+            throw new IllegalArgumentException("Error in argument's length ");
         }
+        
+        Map<String, String> params = new HashMap<String, String>();
+        
+        for (int i = 0, len = args.length; i < len;)
+        {
+            String argName = args[i++];
+            
+            if (argName.charAt(0) == '-')
+            {
+                if (argName.length() < 2)
+                {
+                    throw new IllegalArgumentException("Error at argument " + argName);
+                }
+                
+                argName = argName.substring(1);
+            }
+            
+            params.put(argName, args[i++]);
+        }
+
         return params;
     }
 
