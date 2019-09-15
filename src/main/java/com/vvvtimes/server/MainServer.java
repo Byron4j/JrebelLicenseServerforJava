@@ -18,29 +18,24 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 
 public class MainServer extends AbstractHandler {
 
-    private static Map<String, String> parseArguments(String[] args)
-    {
-        if (args.length % 2 != 0)
-        {
+    private static Map<String, String> parseArguments(String[] args) {
+        if (args.length % 2 != 0) {
             throw new IllegalArgumentException("Error in argument's length ");
         }
-        
+
         Map<String, String> params = new HashMap<String, String>();
-        
-        for (int i = 0, len = args.length; i < len;)
-        {
+
+        for (int i = 0, len = args.length; i < len; ) {
             String argName = args[i++];
-            
-            if (argName.charAt(0) == '-')
-            {
-                if (argName.length() < 2)
-                {
+
+            if (argName.charAt(0) == '-') {
+                if (argName.length() < 2) {
                     throw new IllegalArgumentException("Error at argument " + argName);
                 }
-                
+
                 argName = argName.substring(1);
             }
-            
+
             params.put(argName, args[i++]);
         }
 
@@ -62,12 +57,12 @@ public class MainServer extends AbstractHandler {
         System.out.println("License Server started at http://localhost:" + port);
         System.out.println("JetBrains Activation address was: http://localhost:" + port + "/");
         System.out.println("JRebel 7.1 and earlier version Activation address was: http://localhost:" + port + "/{tokenname}, with any email.");
-        System.out.println("JRebel 2018.1 and later version Activation address was: http://localhost:" + port + "/{guid}(eg:http://localhost:" + port + "/"+ UUID.randomUUID().toString()+"), with any email.");
+        System.out.println("JRebel 2018.1 and later version Activation address was: http://localhost:" + port + "/{guid}(eg:http://localhost:" + port + "/" + UUID.randomUUID().toString() + "), with any email.");
 
         server.join();
     }
 
-
+    @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         System.out.println(target);
@@ -94,7 +89,7 @@ public class MainServer extends AbstractHandler {
         }
     }
 
-    private void jrebelValidateHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException  {
+    private void jrebelValidateHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);
@@ -130,7 +125,7 @@ public class MainServer extends AbstractHandler {
                 "    \"statusMessage\": null\n" +
                 "}\n";
         JSONObject jsonObject = JSONObject.fromObject(jsonStr);
-        if (username != null ) {
+        if (username != null) {
             jsonObject.put("company", username);
         }
         String body = jsonObject.toString();
@@ -195,14 +190,14 @@ public class MainServer extends AbstractHandler {
         }
     }
 
-    private void releaseTicketHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException{
+    private void releaseTicketHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
         String salt = request.getParameter("salt");
         baseRequest.setHandled(true);
-        if(salt==null){
+        if (salt == null) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        }else{
+        } else {
             String xmlContent = "<ReleaseTicketResponse><message></message><responseCode>OK</responseCode><salt>" + salt + "</salt></ReleaseTicketResponse>";
             String xmlSignature = rsasign.Sign(xmlContent);
             String body = "<!-- " + xmlSignature + " -->\n" + xmlContent;
@@ -210,22 +205,21 @@ public class MainServer extends AbstractHandler {
         }
     }
 
-    private void obtainTicketHandler ( String target , Request baseRequest , HttpServletRequest request ,
-                                       HttpServletResponse response ) throws IOException
-    {
+    private void obtainTicketHandler(String target, Request baseRequest, HttpServletRequest request,
+                                     HttpServletResponse response) throws IOException {
         response.setContentType("text/html; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
-        SimpleDateFormat fm=new SimpleDateFormat("EEE,d MMM yyyy hh:mm:ss Z", Locale.ENGLISH);
-        String date =fm.format(new Date())+" GMT";
+        SimpleDateFormat fm = new SimpleDateFormat("EEE,d MMM yyyy hh:mm:ss Z", Locale.ENGLISH);
+        String date = fm.format(new Date()) + " GMT";
         //response.setHeader("Date", date);
         //response.setHeader("Server", "fasthttp");
         String salt = request.getParameter("salt");
         String username = request.getParameter("userName");
         String prolongationPeriod = "607875500";
         baseRequest.setHandled(true);
-        if(salt==null||username==null){
+        if (salt == null || username == null) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        }else{
+        } else {
             String xmlContent = "<ObtainTicketResponse><message></message><prolongationPeriod>" + prolongationPeriod + "</prolongationPeriod><responseCode>OK</responseCode><salt>" + salt + "</salt><ticketId>1</ticketId><ticketProperties>licensee=" + username + "\tlicenseType=0\t</ticketProperties></ObtainTicketResponse>";
             String xmlSignature = rsasign.Sign(xmlContent);
             String body = "<!-- " + xmlSignature + " -->\n" + xmlContent;
@@ -233,15 +227,14 @@ public class MainServer extends AbstractHandler {
         }
     }
 
-    private void pingHandler ( String target , Request baseRequest , HttpServletRequest request , HttpServletResponse response ) throws IOException
-    {
+    private void pingHandler(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html; charset=utf-8");
         response.setStatus(HttpServletResponse.SC_OK);
         String salt = request.getParameter("salt");
         baseRequest.setHandled(true);
-        if(salt==null){
+        if (salt == null) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        }else{
+        } else {
             String xmlContent = "<PingResponse><message></message><responseCode>OK</responseCode><salt>" + salt + "</salt></PingResponse>";
             String xmlSignature = rsasign.Sign(xmlContent);
             String body = "<!-- " + xmlSignature + " -->\n" + xmlContent;
@@ -258,11 +251,35 @@ public class MainServer extends AbstractHandler {
         // 拼接服务器地址
         String licenseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
 
-        String html = "<h1>Hello，此地址是 Jrebel & JetBrains License Server!</h1>";
-        html += "<p>JetBrains许可服务器激活地址 " + licenseUrl;
-        html += "<p>JetBrains激活地址是: <span style='color:red'>" + licenseUrl + "/";
-        html += "<p>JRebel 7.1 及旧版本激活地址: <span style='color:red'>" + licenseUrl + "/{tokenname}</span>, 以及任意邮箱地址。";
-        html += "<p>JRebel 2018.1+ 版本激活地址: " + licenseUrl + "/{guid}(例如：<span style='color:red'>" + licenseUrl + "/"+ UUID.randomUUID().toString() + "</span>), 以及任意邮箱地址。";
+        StringBuffer html = new StringBuffer("<h3>使用说明（Instructions for use）</h3>");
+
+        html.append("<hr/>");
+
+        html.append("<h1>Hello,This is a Jrebel & JetBrains License Server!</h1>");
+        html.append("<p>License Server started at ").append(licenseUrl);
+        html.append("<p>JetBrains Activation address was: <span style='color:red'>").append(licenseUrl).append("/");
+        html.append("<p>JRebel 7.1 and earlier version Activation address was: <span style='color:red'>")
+                .append(licenseUrl).append("/{tokenname}")
+                .append("</span>, with any email.");
+        html.append("<p>JRebel 2018.1 and later version Activation address was: ")
+                .append(licenseUrl).append("/{guid}")
+                .append("(eg:<span style='color:red'>")
+                .append(licenseUrl).append("/").append(UUID.randomUUID().toString())
+                .append("</span>), with any email.");
+
+        html.append("<hr/>");
+
+        html.append("<h1>Hello，此地址是 Jrebel & JetBrains License Server!</h1>");
+        html.append("<p>JetBrains许可服务器激活地址 ").append(licenseUrl);
+        html.append("<p>JetBrains激活地址是: <span style='color:red'>").append(licenseUrl).append("/");
+        html.append("<p>JRebel 7.1 及旧版本激活地址: <span style='color:red'>")
+                .append(licenseUrl).append("/{tokenname}")
+                .append("</span>, 以及任意邮箱地址。");
+        html.append("<p>JRebel 2018.1+ 版本激活地址: ")
+                .append(licenseUrl).append("/{guid}")
+                .append("(例如：<span style='color:red'>")
+                .append(licenseUrl).append("/").append(UUID.randomUUID().toString())
+                .append("</span>), 以及任意邮箱地址。");
 
         response.getWriter().println(html);
     }
