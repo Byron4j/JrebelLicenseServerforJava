@@ -255,7 +255,7 @@ public class MainServer extends AbstractHandler {
         response.setStatus(HttpServletResponse.SC_OK);
         baseRequest.setHandled(true);
 
-        // 获取服务器地址
+        // 拼接服务器地址
         String licenseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
 
         String html = "<h1>Hello，此地址是 Jrebel & JetBrains License Server!</h1>";
