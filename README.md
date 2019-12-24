@@ -1,3 +1,5 @@
+# JrebelLicenseServerforJava
+搭建jrebel激活服务
 # Jrebel & Jet Brains License Server for Java
 
 A license server for Jrebel & JetBrains products, it also support JRebel for Android and XRebel.
@@ -54,5 +56,6 @@ JetBrains Products
 
 ## Feedback
 
-+ issue: https://gitee.com/gsls200808/JrebelLicenseServerforJava/issues
-+ QQ Group: 527290836
+
+
+
