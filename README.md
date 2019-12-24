@@ -1,5 +1,10 @@
 # JrebelLicenseServerforJava
 搭建jrebel激活服务
+
+> 源项目fork自这里，仅用作记录，谢谢。
+>
+> 源地址： https://gitee.com/gsls200808/JrebelLicenseServerforJava
+
 # Jrebel & Jet Brains License Server for Java
 
 A license server for Jrebel & JetBrains products, it also support JRebel for Android and XRebel.
